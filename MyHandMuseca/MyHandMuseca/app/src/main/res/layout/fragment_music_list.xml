@@ -5,9 +5,25 @@
     tools:context="kr.ac.hansung.myhandmuseca.MusicListFragment">
 
     <!-- TODO: Update blank fragment layout -->
-    <TextView
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:text="MusicListFragment" />
+        android:orientation="vertical">
+
+        <TextView
+            android:id="@+id/textView2"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:gravity="center"
+            android:text="MusicListFragment"
+            android:textSize="36sp" />
+
+        <ListView
+            android:id="@+id/musicListView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_weight="1" />
+
+    </LinearLayout>
 
 </FrameLayout>
