@@ -1,20 +1,27 @@
 package kr.ac.hansung.myhandmuseca;
 
 
+import android.app.Dialog;
 import android.content.Context;
 import android.os.Bundle;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
+import android.support.v4.app.DialogFragment;
 import android.support.v4.app.Fragment;
+import android.support.v7.app.AlertDialog;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Button;
+import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
 import java.util.ArrayList;
 
 import kr.ac.hansung.myhandmuseca.Data.MusicData;
+import kr.ac.hansung.myhandmuseca.DataBase.DBManager;
 
 
 /**
@@ -22,10 +29,14 @@ import kr.ac.hansung.myhandmuseca.Data.MusicData;
  */
 public class MusicListFragment extends Fragment
         implements MainActivity.onKeyBackPressedListener{
+    private static final int REQUEST_NEW_GROUP = 1;
+    private static final String REQUEST_SHOW_ADD_GROUP_DIALLOG = "showAddMusicDialogFragment";
+
     private MainActivity main;
     private ArrayList<MusicData> musicDatas = new ArrayList<>();
     private ListView listView;
     private MusicListViewAdapter musicListViewAdapter;
+    private Button addMusicBtn;
 
     public MusicListFragment() {
         // Required empty public constructor
@@ -47,23 +58,40 @@ public class MusicListFragment extends Fragment
                              Bundle savedInstanceState) {
         View v = inflater.inflate(R.layout.fragment_music_list, container, false);
 
-        //더미 데이터
-        musicDatas.add(new MusicData("하이","20170504","헤헤","호호호호호"));
-        musicDatas.add(new MusicData("하이","20170504","헤헤","호호호호호"));
-        musicDatas.add(new MusicData("하이","20170504","헤헤","호호호호호"));
+        initDatas();
 
         listView = (ListView)v.findViewById(R.id.musicListView);
         musicListViewAdapter = new MusicListViewAdapter();
         if(musicDatas!=null) {
             for (int i = 0; i < musicDatas.size(); i++) {
                 musicListViewAdapter.addItem(
-                        musicDatas.get(i).getData(0), musicDatas.get(i).getData(1),
-                        musicDatas.get(i).getData(2), musicDatas.get(i).getData(3));
+                        musicDatas.get(i).getData(1), musicDatas.get(i).getData(2),
+                        musicDatas.get(i).getData(3), musicDatas.get(i).getData(4));
             }
         }
         listView.setAdapter(musicListViewAdapter);
+
+        addMusicBtn = (Button)v.findViewById(R.id.addMusicBtn);
+        addMusicBtn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                startAddMusic();
+            }
+        });
         return v;
     }
+
+    private void startAddMusic() {
+        AddMusicDialogFragment dialog = new AddMusicDialogFragment();
+        dialog.setTargetFragment(MusicListFragment.this, REQUEST_NEW_GROUP);
+        dialog.show(getFragmentManager(), REQUEST_SHOW_ADD_GROUP_DIALLOG);
+    }
+
+    public void initDatas(){
+        DBManager db = new DBManager();
+        musicDatas = db.SelectAllMusicDB();
+    }
+
 
     //백키관련 코드
     @Override
@@ -77,6 +105,50 @@ public class MusicListFragment extends Fragment
     public void onAttach(Context context) {
         super.onAttach(context);
         ((MainActivity) context).setOnKeyBackPressedListener(this);
+    }
+
+
+    public static class AddMusicDialogFragment extends DialogFragment {
+
+        private Button addMusicBtn;
+        private EditText nameEditText;
+        private EditText releasedEditText;
+        private EditText prouduceEditText;
+        private EditText getEditText;
+
+        @NonNull
+        @Override
+        public Dialog onCreateDialog(Bundle savedInstanceState) {
+            AlertDialog.Builder builder = new AlertDialog.Builder(getActivity());
+            LayoutInflater layoutInflater = LayoutInflater.from(getActivity());
+            View v = layoutInflater.inflate(R.layout.dialog_add_music,null);
+            builder.setView(v);
+            builder.setTitle("새 악곡 추가");
+
+            nameEditText = (EditText)v.findViewById(R.id.nameEditText);
+            releasedEditText = (EditText)v.findViewById(R.id.releasedEditText);
+            prouduceEditText = (EditText)v.findViewById(R.id.produceEditText);
+            getEditText = (EditText)v.findViewById(R.id.getEditText);
+
+            //그룹만들기 버튼
+            addMusicBtn = (Button)v.findViewById(R.id.okAddMusicBtn);
+            addMusicBtn.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    String name = nameEditText.getText().toString();
+                    String released = releasedEditText.getText().toString();
+                    String produce = prouduceEditText.getText().toString();
+                    String get = getEditText.getText().toString();
+
+                    DBManager dbManager = new DBManager();
+                    dbManager.InsertMusicDB(new MusicData("",name,released,produce,get));
+
+                    dismiss();
+                    ((MainActivity)getActivity()).ChangeFragment(new MusicListFragment());
+                }
+            });
+            return builder.create();
+        }
     }
 }
 
@@ -139,3 +211,5 @@ class MusicListViewAdapter extends BaseAdapter{
         return convertView;
     }
 }
+
+

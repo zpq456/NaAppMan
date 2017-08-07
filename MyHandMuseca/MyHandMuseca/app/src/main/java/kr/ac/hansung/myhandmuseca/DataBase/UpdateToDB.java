@@ -46,7 +46,7 @@ public class UpdateToDB extends Thread{
         builder.scheme("http");
         builder.host(IP);
         builder.port(80);
-        //builder.addPathSegments("Calendar3S");//폴더이동이 더 필요할경우
+        builder.addPathSegments("Music");
         builder.addPathSegments(PHP);
 
         RequestBody body = new FormBody.Builder()

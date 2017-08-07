@@ -5,15 +5,16 @@ package kr.ac.hansung.myhandmuseca.Data;
  */
 
 public class MusicData implements DataInfo{
-    private String[] uData = new String[4];
+    private String[] uData = new String[5];
 
     public MusicData(){}
-    public MusicData(String mName, String mReleased,
+    public MusicData(String Mid, String mName, String mReleased,
                           String mProduce, String mGet){
-        setData(0,mName);
-        setData(1,mReleased);
-        setData(2,mProduce);
-        setData(3,mGet);
+        setData(0,Mid);
+        setData(1,mName);
+        setData(2,mReleased);
+        setData(3,mProduce);
+        setData(4,mGet);
     }
 
     @Override
